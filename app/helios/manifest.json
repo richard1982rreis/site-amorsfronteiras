@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Hélios · O seu escritor de bolso",
+  "short_name": "Hélios",
+  "description": "Para casais que se amam, de perto ou longe. Os “3 Ois” de hoje, com frases originais do Amor Sem Fronteiras.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e3eefc",
+  "theme_color": "#e3eefc",
+  "categories": ["lifestyle", "social"],
+  "icons": [
+    { "src": "icons/helios-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/helios-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/helios-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
