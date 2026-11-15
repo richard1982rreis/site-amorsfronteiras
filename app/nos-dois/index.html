@@ -51,7 +51,7 @@
 html{-webkit-text-size-adjust:100%;background:#ebe8f6}
 body{margin:0;min-height:100dvh;font-family:var(--body);color:var(--ink);line-height:1.6;
   background:linear-gradient(180deg,#e3effc 0%,#ebe8f6 45%,#fde4ea 100%)}
-button,input,a{font-family:inherit;color:inherit}
+button,input,textarea,a{font-family:inherit;color:inherit}
 button{cursor:pointer}
 a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 :focus-visible{outline:3px solid rgba(200,36,63,.45);outline-offset:2px}
@@ -109,7 +109,11 @@ code{background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 
 .chip small{display:block;color:var(--muted);font-size:14px;line-height:1.4}
 .chip.on{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(200,36,63,.12)}
 .chip[disabled]{opacity:.5;cursor:default}
-input[type=text]{width:100%;margin:8px 0 0;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font-size:16px;color:var(--ink)}
+input[type=text],textarea{width:100%;margin:8px 0 0;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font-size:16px;color:var(--ink)}
+textarea{min-height:132px;resize:vertical;line-height:1.45}
+.resposta-escrita{margin-top:18px}
+.resposta-escrita label{display:block;font-weight:600}
+.resposta-escrita small{display:block;margin-top:6px;color:var(--muted);line-height:1.4}
 .progresso{height:10px;margin:10px 0 6px;border-radius:999px;background:rgba(16,40,79,.10);overflow:hidden}
 .progresso i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
 .topo-jogo{display:flex;justify-content:space-between;gap:12px;font:500 12px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -120,7 +124,7 @@ input[type=text]{width:100%;margin:8px 0 0;padding:13px 14px;border:1.5px solid 
 .resultado{text-align:center}
 .medalhao{width:150px;height:150px;border-radius:50%;margin:0 auto 6px;background:url(icons/nos-dois-icon-512.png) center/cover no-repeat;box-shadow:0 6px 20px rgba(60,50,120,.24)}
 .placar{margin:6px 0 4px;font-family:var(--display);font-size:42px;line-height:1}
-.respostas p{margin:0 0 10px;font-size:15px;line-height:1.5;color:var(--muted)}
+.respostas p{margin:0 0 10px;font-size:15px;line-height:1.5;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
 .respostas b{color:var(--ink)}
 .comparacao{margin-top:12px;font-size:15px}
 .comparacao .resumo{padding:14px 16px;border-radius:16px;background:var(--rosa);color:var(--ink);font-weight:600}
@@ -233,7 +237,7 @@ input[type=text]{width:100%;margin:8px 0 0;padding:13px 14px;border:1.5px solid 
   <!-- só aparece quando jogaram em dois celulares -->
   <div class="card" id="bloco-comparar" hidden>
     <h2>Comparar com o seu par</h2>
-    <p class="muted">Cada um copia o seu código e manda para o outro (WhatsApp, mensagem, como preferirem). Depois, cole o código do seu par e toque em comparar. O código tem só as respostas, sem nomes.</p>
+    <p class="muted">Cada um copia o seu código e manda para o outro (WhatsApp, mensagem, como preferirem). Depois, cole o código do seu par e toque em comparar. O código tem as respostas do jogo, sem nomes; se vocês escreverem, esses textos também seguem somente no código que vocês escolherem enviar.</p>
     <span class="rotulo">Seu código de comparação</span>
     <input type="text" id="meu-codigo" readonly aria-label="Seu código de comparação">
     <div class="linha">
@@ -254,7 +258,7 @@ input[type=text]{width:100%;margin:8px 0 0;padding:13px 14px;border:1.5px solid 
   <div class="card">
     <h2>Jogar em dois celulares</h2>
     <p>1. Uma pessoa escolhe o modo e cria a sala.<br>
-       2. A outra digita o mesmo código no celular dela.<br>
+       2. Ela envia o convite. Ao abrir o link, o código já vem preenchido no outro celular.<br>
        3. As perguntas aparecem na mesma ordem nos dois aparelhos.<br>
        4. Cada um responde no seu. No fim, trocam os códigos e comparam.</p>
 
@@ -424,6 +428,22 @@ function botao(texto, classe, aoClicar) {             // cria botão sem montar 
   const b = document.createElement("button");
   b.type = "button"; b.className = "btn " + classe; b.textContent = texto; b.addEventListener("click", aoClicar); return b;
 }
+function respostaEscrita(acoes) {                     // para perguntas abertas: o texto fica neste aparelho até ser compartilhado no código final
+  const bloco = document.createElement("div"); bloco.className = "resposta-escrita";
+  const rotulo = document.createElement("label"); rotulo.htmlFor = "resposta-escrita"; rotulo.textContent = "Quer responder por escrito?";
+  const campo = document.createElement("textarea");
+  campo.id = "resposta-escrita"; campo.maxLength = 700; campo.placeholder = "Escreva do jeito de vocês, sem pressa…";
+  campo.setAttribute("aria-describedby", "ajuda-resposta-escrita");
+  const ajuda = document.createElement("small"); ajuda.id = "ajuda-resposta-escrita";
+  ajuda.textContent = "Opcional. A resposta aparece no fim e, se vocês escolherem comparar, vai no código enviado somente ao seu par.";
+  bloco.append(rotulo, campo, ajuda); acoes.append(bloco);
+  acoes.append(botao("Salvar resposta e continuar →", "primary", () => {
+    const texto = campo.value.trim();
+    if (!texto) { avisar("Escreva uma resposta ou escolha continuar sem escrever."); campo.focus(); return; }
+    responder("Resposta escrita", "c", texto);
+  }));
+  acoes.append(botao("Continuar sem escrever →", "ghost small", () => responder("Conversamos", "c")));
+}
 function comecarPartida() {
   lista = montarLista(versao, sala); idx = 0; respostas = []; pontos = 0;
   ir("jogo"); mostrar();
@@ -456,14 +476,16 @@ function mostrar() {
     a.append(botao("Acertou, +1 ponto", "primary", () => responder("Acertou", "a")));
     a.append(botao("Errou, próxima", "secondary", () => responder("Errou", "n")));
   } else {
-    a.append(botao("Conversamos, próxima →", "primary", () => responder("Conversamos", "c")));
+    // As perguntas abertas podem ser só conversadas ou ganhar uma resposta escrita mais longa.
+    if (p.r !== "Quem é mais?") respostaEscrita(a);
+    else a.append(botao("Conversamos, próxima →", "primary", () => responder("Conversamos", "c")));
     const t = document.createElement("p"); t.className = "muted"; t.style.textAlign = "center"; t.style.marginTop = "8px";
-    t.textContent = "Sem pontos. Só conversem, no tempo de vocês.";
+    t.textContent = "Sem pontos. Conversem no tempo de vocês — escrever é opcional.";
     a.append(t);
   }
 }
-function responder(v, c) {
-  respostas.push({ q: lista[idx].q, r: lista[idx].r, v, c });
+function responder(v, c, texto = "") {
+  respostas.push({ q: lista[idx].q, r: lista[idx].r, v, c, t: texto });
   pontos = respostas.filter((x) => x.c === "a").length;
   idx++; mostrar();
 }
@@ -485,17 +507,17 @@ function fim() {
   const box = $("todas-respostas"); box.replaceChildren();
   respostas.forEach((x, i) => {
     const p = document.createElement("p"), b = document.createElement("b");
-    b.textContent = (i + 1) + ". " + x.q; p.append(b, document.createElement("br"), document.createTextNode(x.v)); box.append(p);
+    b.textContent = (i + 1) + ". " + x.q; p.append(b, document.createElement("br"), document.createTextNode(x.t || x.v)); box.append(p);
   });
-  // dois celulares: gera o código de comparação (uma letra por pergunta, na ordem da sala)
+  // dois celulares: gera um código que pode levar as respostas escritas, sem usar servidor
   $("bloco-comparar").hidden = !sala;
   $("comparacao").replaceChildren(); $("codigo-par").value = "";
-  if (sala) $("meu-codigo").value = "ND1." + sala + "." + respostas.map((x) => x.c).join("");
+  if (sala) $("meu-codigo").value = codigoComparacao();
   limparSalvo();                                   // terminou: não há mais partida para continuar
 }
 
 /* ---------- 7) Dois celulares: sala e comparação ---------- */
-const RE_SALA = /^AMOR-[A-Z0-9]{4}-[CQ][CR]$/;      // AMOR-XXXX-MV  (M: C conversa / Q quem é mais, V: C completa / R rápida)
+const RE_SALA = /^AMOR-[A-Z0-9]{4}-[CQ][CR]$/;      // AMOR-XXXX-QC  (C/Q: conversa ou quem é mais; C/R: completa ou rápida)
 function aplicarSala(codigo) {                       // lê modo e versão de dentro do código da sala
   sala = codigo;
   duoModo = codigo.slice(-2, -1) === "Q" ? "quem" : "conversa";
@@ -517,11 +539,19 @@ function entrarSala() {
   if (!RE_SALA.test(c)) { avisar("Código inválido. Ele é parecido com AMOR-7K2Q-QC."); return; }
   aplicarSala(c); avisar("Você entrou na sala " + c + ".");
 }
-function url() { return new URL("./", location.href).href; }
-function compartilhar(texto) {                       // folha de compartilhar do celular; no computador abre o WhatsApp
-  const msg = texto + " " + url();
-  if (navigator.share) navigator.share({ text: msg }).catch(() => {});
+function url() {                                     // link limpo para o jogo, sem repetir um convite recebido
+  const destino = new URL(location.href); destino.search = ""; destino.hash = ""; return destino.href;
+}
+function urlConvite(codigo) {
+  const destino = new URL(url()); destino.searchParams.set("sala", codigo); return destino.href;
+}
+function compartilhar(texto, link = url()) {         // folha de compartilhar do celular; no computador abre o WhatsApp
+  const msg = texto + " " + link;
+  if (navigator.share) navigator.share({ title: "Nós", text: texto, url: link }).catch(() => {});
   else window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank", "noopener");
+}
+function compartilharConvite() {
+  compartilhar("Vamos jogar o Nós? Abra este convite: o código da sala já vai aparecer preenchido. Depois é só tocar em “Entrar na sala”", urlConvite(sala));
 }
 function copiarCampo(id) {
   const campo = $(id); campo.focus(); campo.select();
@@ -529,9 +559,35 @@ function copiarCampo(id) {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(campo.value).then(ok, () => { document.execCommand("copy"); ok(); });
   else { try { document.execCommand("copy"); ok(); } catch (e) { avisar("Selecione e copie o código."); } }
 }
-function lerCodigo(txt) {                            // aceita o código colado com texto em volta
-  const m = /ND1\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([epxc_]+)/i.exec(txt || "");
-  return m ? { sala: m[1].toUpperCase(), letras: m[2].toLowerCase() } : null;
+function paraBase64Url(texto) {                       // preserva acentos e emoji nas respostas escritas
+  const bytes = new TextEncoder().encode(texto); let binario = "";
+  bytes.forEach((b) => { binario += String.fromCharCode(b); });
+  return btoa(binario).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function deBase64Url(codigo) {
+  const normal = codigo.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((codigo.length + 3) % 4);
+  const binario = atob(normal); const bytes = Uint8Array.from(binario, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function codigoComparacao() {
+  // Sem texto, mantém o formato curto do jogo anterior para facilitar a transição da atualização.
+  if (!respostas.some((x) => x.t)) return "ND1." + sala + "." + respostas.map((x) => x.c).join("");
+  const itens = respostas.map((x) => ({ c: x.c, t: x.t || "" }));
+  return "ND2." + sala + "." + paraBase64Url(JSON.stringify(itens));
+}
+function respostasValidas(itens) {
+  return Array.isArray(itens) && itens.every((x) => x && typeof x.c === "string" && /^[epxc_na]$/.test(x.c) && typeof x.t === "string" && x.t.length <= 700);
+}
+function lerCodigo(txt) {                            // aceita o código colado com texto em volta; também lê códigos antigos ND1
+  const novo = /ND2\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([A-Za-z0-9_-]+)/i.exec(txt || "");
+  if (novo) {
+    try {
+      const respostasDoCodigo = JSON.parse(deBase64Url(novo[2]));
+      return respostasValidas(respostasDoCodigo) ? { sala: novo[1].toUpperCase(), respostas: respostasDoCodigo } : null;
+    } catch (e) { return null; }
+  }
+  const antigo = /ND1\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([epxc_]+)/i.exec(txt || "");
+  return antigo ? { sala: antigo[1].toUpperCase(), respostas: antigo[2].toLowerCase().split("").map((c) => ({ c, t: "" })) } : null;
 }
 const NOME_LETRA = { e: "Eu", p: "Meu par", x: "Os dois / Empate", c: "Conversamos", _: "Pulada" };
 function comparar() {
@@ -539,22 +595,21 @@ function comparar() {
   const msg = (t) => { const d = document.createElement("div"); d.className = "item"; d.textContent = t; saida.append(d); };
   const meu = lerCodigo($("meu-codigo").value), par = lerCodigo($("codigo-par").value);
   if (!meu) return msg("Termine o quiz em dois celulares para gerar o seu código.");
-  if (!par) return msg("Cole o código do seu par (ele começa com ND1).");
+  if (!par) return msg("Cole o código do seu par (ele começa com ND2; códigos antigos ND1 também funcionam).");
   if (par.sala !== meu.sala) return msg("Esse código é de outra sala (" + par.sala + "). A sua é " + meu.sala + ".");
-  if (par.letras === meu.letras) return msg("Esse é o seu próprio código. Cole o do seu par.");
   const l = montarLista(meu.sala.slice(-1) === "R" ? "rapida" : "completa", meu.sala);
-  if (par.letras.length !== l.length || meu.letras.length !== l.length) return msg("O código do seu par está incompleto. Peça para ele copiar de novo.");
+  if (par.respostas.length !== l.length || meu.respostas.length !== l.length) return msg("O código do seu par está incompleto. Peça para ele copiar de novo.");
   const quem = meu.sala.slice(-2, -1) === "Q";
-  let combinaram = 0, total = 0; const divergentes = [], pulos = [];
+  let combinaram = 0, total = 0; const divergentes = [], pulos = [], escritas = [];
   l.forEach((p, i) => {
-    const a = meu.letras[i], b = par.letras[i];
-    if (a === "_" || b === "_") { pulos.push(p.q); return; }
+    const a = meu.respostas[i], b = par.respostas[i];
+    if (a.c === "_" || b.c === "_") { pulos.push(p.q); return; }
     if (quem && p.r === "Quem é mais?") {
       total++;
       // "Eu" de um é "Meu par" do outro: combinam quando os dois apontam para a mesma pessoa
-      if ((a === "e" && b === "p") || (a === "p" && b === "e") || (a === "x" && b === "x")) combinaram++;
+      if ((a.c === "e" && b.c === "p") || (a.c === "p" && b.c === "e") || (a.c === "x" && b.c === "x")) combinaram++;
       else divergentes.push({ q: p.q, a, b });
-    }
+    } else if (a.t || b.t) escritas.push({ q: p.q, a, b });
   });
   const resumo = document.createElement("div"); resumo.className = "resumo";
   if (quem && total > 0) resumo.textContent = "Vocês combinaram em " + combinaram + " de " + total + " perguntas de apontar. " + (combinaram === total ? "Sintonia total!" : "O resto é conversa para a noite.");
@@ -563,8 +618,14 @@ function comparar() {
   divergentes.forEach((d) => {
     const it = document.createElement("div"); it.className = "item"; it.textContent = d.q;
     const s = document.createElement("small");
-    s.textContent = d.a === d.b && d.a === "e" ? "Cada um apontou para si mesmo." : d.a === d.b && d.a === "p" ? "Cada um apontou para o outro." : "Você: " + NOME_LETRA[d.a] + " · Seu par: " + NOME_LETRA[d.b];
+    s.textContent = d.a.c === d.b.c && d.a.c === "e" ? "Cada um apontou para si mesmo." : d.a.c === d.b.c && d.a.c === "p" ? "Cada um apontou para o outro." : "Você: " + NOME_LETRA[d.a.c] + " · Seu par: " + NOME_LETRA[d.b.c];
     it.append(s); saida.append(it);
+  });
+  escritas.forEach((d) => {
+    const it = document.createElement("div"); it.className = "item"; it.textContent = d.q;
+    const s = document.createElement("small");
+    s.textContent = "Você: " + (d.a.t || NOME_LETRA[d.a.c]) + "\n\nSeu par: " + (d.b.t || NOME_LETRA[d.b.c]);
+    s.style.whiteSpace = "pre-line"; it.append(s); saida.append(it);
   });
   if (pulos.length) msg(pulos.length + " pergunta(s) foram puladas por alguém. Vale conversar sobre elas, se quiserem.");
 }
@@ -577,7 +638,7 @@ function lerSalvo() {                                // devolve a partida salva 
     if (s.sala && !RE_SALA.test(s.sala)) return null;
     const l = montarLista(s.versao, s.sala || "");
     if (!Number.isInteger(s.idx) || s.idx < 0 || s.idx >= l.length || !Array.isArray(s.respostas) || s.respostas.length !== s.idx) return null;
-    if (!s.respostas.every((x) => x && ["q", "r", "v", "c"].every((k) => typeof x[k] === "string"))) return null;
+    if (!s.respostas.every((x) => x && ["q", "r", "v", "c"].every((k) => typeof x[k] === "string") && (typeof x.t === "undefined" || typeof x.t === "string") && (!x.t || x.t.length <= 700))) return null;
     return s;
   } catch (e) { return null; }
 }
@@ -632,7 +693,7 @@ $("btn-de-novo").addEventListener("click", () => { if (sala) { zerarSala(); ir("
 $("btn-criar-sala").addEventListener("click", criarSala);
 $("btn-entrar-sala").addEventListener("click", entrarSala);
 $("btn-comecar-duo").addEventListener("click", () => { modo = duoModo; versao = duoVersao; comecarPartida(); });
-$("btn-enviar-sala").addEventListener("click", () => compartilhar("Vamos jogar o Nós? Entre na sala " + sala + ":"));
+$("btn-enviar-sala").addEventListener("click", compartilharConvite);
 $("btn-copiar").addEventListener("click", () => copiarCampo("meu-codigo"));
 $("btn-enviar-codigo").addEventListener("click", () => compartilhar("Meu código do Nós: " + $("meu-codigo").value + " · cole no jogo para comparar:"));
 $("btn-comparar").addEventListener("click", comparar);
@@ -645,6 +706,16 @@ document.querySelectorAll("[data-duo-versao]").forEach((b) => b.addEventListener
 $("ano").textContent = new Date().getFullYear();
 marcar("data-modo", modo); marcar("data-versao", versao); marcar("data-duo-modo", duoModo); marcar("data-duo-versao", duoVersao);
 atualizarHome();
+function abrirConvite() {                            // convite: abre já na sala e deixa o código pronto para confirmar
+  const codigo = (new URL(location.href).searchParams.get("sala") || "").trim().toUpperCase();
+  if (!codigo) return;
+  if (!RE_SALA.test(codigo)) { avisar("O convite não tem um código de sala válido."); return; }
+  $("entrar-codigo").value = codigo;
+  ir("duo");
+  $("entrar-codigo").focus({ preventScroll: true });
+  avisar("Convite recebido. O código já está preenchido; toque em “Entrar na sala”.");
+}
+abrirConvite();
 </script>
 </body>
 </html>

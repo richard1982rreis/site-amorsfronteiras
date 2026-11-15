@@ -8,7 +8,7 @@
    - Ícones e demais arquivos: usa a cópia guardada e atualiza em segundo plano.
    Ao publicar uma versão nova do jogo, troque o número em VERSAO para renovar o cache.
    ===================================================================== */
-const VERSAO = "nos-dois-v4";
+const VERSAO = "nos-dois-v5";
 const ESCOPO = new URL("./", self.location).pathname;          // ex.: "/nos-dois/"
 const CASCA = [
   "./index.html",
