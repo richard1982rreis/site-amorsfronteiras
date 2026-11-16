@@ -153,6 +153,14 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
 
 <!-- ============================ INÍCIO ============================ -->
 <section id="tela-home">
+  <!-- aparece depois que uma partida termina: permite rever as respostas e a comparação mesmo após fechar o app -->
+  <div class="card" id="resultado-salvo" hidden>
+    <h2>Último resultado</h2>
+    <p class="muted" id="resultado-salvo-texto">Vocês têm um resultado guardado neste aparelho.</p>
+    <button class="btn primary" id="btn-ver-resultado" type="button">Ver respostas e comparação</button>
+    <button class="btn ghost small" id="btn-apagar-resultado" type="button">Apagar este resultado</button>
+  </div>
+
   <!-- aparece só se a pessoa tocou em "Sair e salvar progresso" antes -->
   <div class="card" id="salvo" hidden>
     <h2>Partida salva</h2>
@@ -226,7 +234,7 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
 <section id="tela-resultado" hidden>
   <div class="card resultado">
     <div class="medalhao" role="img" aria-label="Duas almas de luz com um coração dourado"></div>
-    <h2>Vocês chegaram ao fim <span aria-hidden="true">♥</span></h2>
+    <h2 id="resultado-titulo">Vocês chegaram ao fim <span aria-hidden="true">♥</span></h2>
     <p class="lead" id="resultado-texto"></p>
     <div class="placar" id="placar"></div>
     <button class="btn primary" id="btn-de-novo" type="button">Jogar de novo</button>
@@ -237,7 +245,7 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
   <!-- só aparece quando jogaram em dois celulares -->
   <div class="card" id="bloco-comparar" hidden>
     <h2>Comparar com o seu par</h2>
-    <p class="muted">Cada um copia o seu código e manda para o outro (WhatsApp, mensagem, como preferirem). Depois, cole o código do seu par e toque em comparar. O código tem as respostas do jogo, sem nomes; se vocês escreverem, esses textos também seguem somente no código que vocês escolherem enviar.</p>
+    <p class="muted">Cada um envia a comparação ao outro (WhatsApp, mensagem, como preferirem). Ao abrir o link, o código recebido já fica no lugar certo para comparar. O código tem as respostas do jogo, sem nomes; se vocês escreverem, esses textos também seguem somente no link que vocês escolherem enviar. O último resultado e os códigos de comparação ficam guardados só neste aparelho até vocês apagarem os dados do jogo.</p>
     <span class="rotulo">Seu código de comparação</span>
     <input type="text" id="meu-codigo" readonly aria-label="Seu código de comparação">
     <div class="linha">
@@ -294,7 +302,7 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
   <div class="card">
     <h2>Como funciona</h2>
     <p><b>5 rodadas:</b> Quem é mais? · Nossa história · Divertidas · Para se conhecer de verdade · Futuro a dois.</p>
-    <p><b>Privacidade:</b> sem cadastro, sem nome real e sem enviar nada. O jogo só guarda a partida neste aparelho se você tocar em “Sair e salvar progresso”. Você apaga tudo quando quiser.</p>
+    <p><b>Privacidade:</b> sem cadastro, sem nome real e sem enviar nada automaticamente. O jogo só guarda o progresso se você tocar em “Sair e salvar progresso”. Ao terminar uma partida, guarda o último resultado e os códigos de comparação apenas neste aparelho para que vocês possam rever as respostas ou abrir uma comparação recebida. Você apaga tudo quando quiser.</p>
     <h3>Instalar no celular</h3>
     <ul class="lista">
       <li><b>Android / Chrome:</b> menu ⋮ → Instalar app (ou Adicionar à tela inicial).</li>
@@ -376,9 +384,11 @@ const PERGUNTAS = [
 {r:"Futuro a dois",q:"Se pudéssemos deixar um conselho para nós mesmos no começo da relação, o que seria?"}
 ];
 
-/* ---------- 2) Estado da partida (só na memória; só vai para o aparelho se a pessoa pedir para salvar) ---------- */
+/* ---------- 2) Estado da partida (em memória; o progresso só é salvo a pedido, e o último código local serve para abrir uma comparação recebida) ---------- */
 const $ = (id) => document.getElementById(id);
-const CHAVE = "nosdois.progresso";          // única coisa que o jogo grava no aparelho, e só ao tocar em "Sair e salvar"
+const CHAVE = "nosdois.progresso";          // progresso: só é gravado se a pessoa pedir para salvar
+const CHAVE_COMPARACAO = "nosdois.ultima-comparacao"; // último resultado, apenas para abrir um link de comparação neste mesmo aparelho
+const CHAVE_RESULTADO = "nosdois.ultimo-resultado";   // respostas do último quiz terminado, só neste aparelho
 let modo = "conversa";                       // conversa | quem | conhece
 let versao = "completa";                     // completa | rapida
 let sala = "";                               // código da sala (vazio = mesmo celular)
@@ -497,6 +507,7 @@ function voltarPergunta() {
 /* ---------- 6) Resultado ---------- */
 function fim() {
   ir("resultado");
+  $("resultado-titulo").textContent = "Vocês chegaram ao fim ♥";
   let txt;
   if (modo === "conhece") {
     txt = "Vocês fizeram " + pontos + " pontos em " + lista.length + " perguntas. " +
@@ -504,15 +515,12 @@ function fim() {
   } else txt = "Vocês passaram por " + lista.length + " perguntas. Guardem uma resposta de hoje para lembrar depois.";
   $("resultado-texto").textContent = txt;
   $("placar").textContent = modo === "conhece" ? pontos + " / " + lista.length : "";
-  const box = $("todas-respostas"); box.replaceChildren();
-  respostas.forEach((x, i) => {
-    const p = document.createElement("p"), b = document.createElement("b");
-    b.textContent = (i + 1) + ". " + x.q; p.append(b, document.createElement("br"), document.createTextNode(x.t || x.v)); box.append(p);
-  });
-  // dois celulares: gera um código que pode levar as respostas escritas, sem usar servidor
+  preencherTodasRespostas();
+  guardarResultado();
+  // dois celulares: prepara um código compacto que pode levar as respostas escritas, sem usar servidor
   $("bloco-comparar").hidden = !sala;
   $("comparacao").replaceChildren(); $("codigo-par").value = "";
-  if (sala) $("meu-codigo").value = codigoComparacao();
+  if (sala) prepararCodigoComparacao();
   limparSalvo();                                   // terminou: não há mais partida para continuar
 }
 
@@ -545,6 +553,9 @@ function url() {                                     // link limpo para o jogo, 
 function urlConvite(codigo) {
   const destino = new URL(url()); destino.searchParams.set("sala", codigo); return destino.href;
 }
+function urlComparacao(codigo) {
+  const destino = new URL(url()); destino.hash = new URLSearchParams([["comparar", codigo]]).toString(); return destino.href;
+}
 function compartilhar(texto, link = url()) {         // folha de compartilhar do celular; no computador abre o WhatsApp
   const msg = texto + " " + link;
   if (navigator.share) navigator.share({ title: "Nós", text: texto, url: link }).catch(() => {});
@@ -553,52 +564,109 @@ function compartilhar(texto, link = url()) {         // folha de compartilhar do
 function compartilharConvite() {
   compartilhar("Vamos jogar o Nós? Abra este convite: o código da sala já vai aparecer preenchido. Depois é só tocar em “Entrar na sala”", urlConvite(sala));
 }
+function enviarComparacao() {
+  const codigo = $("meu-codigo").value;
+  if (!codigo || codigo === "Preparando a comparação…") { avisar("A comparação ainda está sendo preparada."); return; }
+  compartilhar("Minhas respostas do Nós estão neste link. Abra-o para comparar as nossas respostas:", urlComparacao(codigo));
+}
 function copiarCampo(id) {
   const campo = $(id); campo.focus(); campo.select();
   const ok = () => avisar("Copiado.");
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(campo.value).then(ok, () => { document.execCommand("copy"); ok(); });
   else { try { document.execCommand("copy"); ok(); } catch (e) { avisar("Selecione e copie o código."); } }
 }
-function paraBase64Url(texto) {                       // preserva acentos e emoji nas respostas escritas
-  const bytes = new TextEncoder().encode(texto); let binario = "";
-  bytes.forEach((b) => { binario += String.fromCharCode(b); });
+function bytesParaBase64Url(bytes) {                 // conserva acentos e emoji sem caracteres que quebrem links
+  let binario = ""; bytes.forEach((b) => { binario += String.fromCharCode(b); });
   return btoa(binario).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
-function deBase64Url(codigo) {
+function base64UrlParaBytes(codigo) {
   const normal = codigo.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((codigo.length + 3) % 4);
-  const binario = atob(normal); const bytes = Uint8Array.from(binario, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
+  return Uint8Array.from(atob(normal), (c) => c.charCodeAt(0));
 }
-function codigoComparacao() {
-  // Sem texto, mantém o formato curto do jogo anterior para facilitar a transição da atualização.
-  if (!respostas.some((x) => x.t)) return "ND1." + sala + "." + respostas.map((x) => x.c).join("");
-  const itens = respostas.map((x) => ({ c: x.c, t: x.t || "" }));
-  return "ND2." + sala + "." + paraBase64Url(JSON.stringify(itens));
+function paraBase64Url(texto) { return bytesParaBase64Url(new TextEncoder().encode(texto)); }
+function deBase64Url(codigo) { return new TextDecoder().decode(base64UrlParaBytes(codigo)); }
+async function compactar(texto) {                     // reduz o link, mas preserva o texto exatamente como foi escrito
+  const semCompactar = paraBase64Url(texto);
+  if (typeof CompressionStream === "undefined") return "u" + semCompactar;
+  try {
+    const bytes = new TextEncoder().encode(texto);
+    const fluxo = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+    const comprimido = bytesParaBase64Url(new Uint8Array(await new Response(fluxo).arrayBuffer()));
+    return comprimido.length < semCompactar.length ? "z" + comprimido : "u" + semCompactar;
+  } catch (e) { return "u" + semCompactar; }
 }
-function respostasValidas(itens) {
-  return Array.isArray(itens) && itens.every((x) => x && typeof x.c === "string" && /^[epxc_na]$/.test(x.c) && typeof x.t === "string" && x.t.length <= 700);
+async function descompactar(pacote) {
+  if (!/^[uz][A-Za-z0-9_-]+$/.test(pacote || "")) throw new Error("formato inválido");
+  if (pacote[0] === "u") return deBase64Url(pacote.slice(1));
+  if (typeof DecompressionStream === "undefined") throw new Error("navegador sem descompactação");
+  const fluxo = new Blob([base64UrlParaBytes(pacote.slice(1))]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new TextDecoder().decode(await new Response(fluxo).arrayBuffer());
 }
-function lerCodigo(txt) {                            // aceita o código colado com texto em volta; também lê códigos antigos ND1
-  const novo = /ND2\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([A-Za-z0-9_-]+)/i.exec(txt || "");
-  if (novo) {
+function respostasCompactas(dados) {
+  if (!Array.isArray(dados) || dados.length !== 2 || typeof dados[0] !== "string" || !/^[epxc_na]+$/.test(dados[0]) || !Array.isArray(dados[1])) return null;
+  const itens = dados[0].split("").map((c) => ({ c, t: "" })); const vistos = new Set();
+  for (const par of dados[1]) {
+    if (!Array.isArray(par) || par.length !== 2 || !Number.isInteger(par[0]) || par[0] < 0 || par[0] >= itens.length || vistos.has(par[0]) || typeof par[1] !== "string" || !par[1] || par[1].length > 700) return null;
+    vistos.add(par[0]); itens[par[0]].t = par[1];
+  }
+  return itens;
+}
+async function codigoComparacao() {
+  // Sem texto, conserva o código curto já usado pelo jogo. Com texto, guarda só as posições que realmente têm conteúdo.
+  const escolhas = respostas.map((x) => x.c).join("");
+  const escritas = respostas.flatMap((x, i) => x.t ? [[i, x.t]] : []);
+  if (!escritas.length) return "ND1." + sala + "." + escolhas;
+  return "ND3." + sala + "." + await compactar(JSON.stringify([escolhas, escritas]));
+}
+function guardarCodigoComparacao(codigo) { try { localStorage.setItem(CHAVE_COMPARACAO, codigo); } catch (e) {} }
+function lerCodigoGuardado() { try { return localStorage.getItem(CHAVE_COMPARACAO) || ""; } catch (e) { return ""; } }
+function limparCodigoGuardado() { try { localStorage.removeItem(CHAVE_COMPARACAO); } catch (e) {} }
+let geracaoCodigo = 0;
+async function prepararCodigoComparacao() {
+  const geracao = ++geracaoCodigo;
+  $("meu-codigo").value = "Preparando a comparação…";
+  $("btn-copiar").disabled = true; $("btn-enviar-codigo").disabled = true;
+  try {
+    const codigo = await codigoComparacao();
+    if (geracao !== geracaoCodigo) return "";
+    $("meu-codigo").value = codigo; guardarCodigoComparacao(codigo);
+    return codigo;
+  } catch (e) {
+    $("meu-codigo").value = ""; avisar("Não foi possível preparar a comparação.");
+    return "";
+  } finally {
+    if (geracao === geracaoCodigo) { $("btn-copiar").disabled = false; $("btn-enviar-codigo").disabled = false; }
+  }
+}
+async function lerCodigo(txt) {                       // aceita código colado ou recebido no link; também lê ND1 e ND2 antigos
+  const compacto = /ND3\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([uz][A-Za-z0-9_-]+)/i.exec(txt || "");
+  if (compacto) {
     try {
-      const respostasDoCodigo = JSON.parse(deBase64Url(novo[2]));
-      return respostasValidas(respostasDoCodigo) ? { sala: novo[1].toUpperCase(), respostas: respostasDoCodigo } : null;
+      const itens = respostasCompactas(JSON.parse(await descompactar(compacto[2])));
+      return itens ? { sala: compacto[1].toUpperCase(), respostas: itens } : null;
+    } catch (e) { return null; }
+  }
+  const anterior = /ND2\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([A-Za-z0-9_-]+)/i.exec(txt || "");
+  if (anterior) {
+    try {
+      const itens = JSON.parse(deBase64Url(anterior[2]));
+      const validos = Array.isArray(itens) && itens.every((x) => x && typeof x.c === "string" && /^[epxc_na]$/.test(x.c) && typeof x.t === "string" && x.t.length <= 700);
+      return validos ? { sala: anterior[1].toUpperCase(), respostas: itens } : null;
     } catch (e) { return null; }
   }
   const antigo = /ND1\.(AMOR-[A-Z0-9]{4}-[CQ][CR])\.([epxc_]+)/i.exec(txt || "");
   return antigo ? { sala: antigo[1].toUpperCase(), respostas: antigo[2].toLowerCase().split("").map((c) => ({ c, t: "" })) } : null;
 }
 const NOME_LETRA = { e: "Eu", p: "Meu par", x: "Os dois / Empate", c: "Conversamos", _: "Pulada" };
-function comparar() {
+async function comparar() {
   const saida = $("comparacao"); saida.replaceChildren();
   const msg = (t) => { const d = document.createElement("div"); d.className = "item"; d.textContent = t; saida.append(d); };
-  const meu = lerCodigo($("meu-codigo").value), par = lerCodigo($("codigo-par").value);
-  if (!meu) return msg("Termine o quiz em dois celulares para gerar o seu código.");
-  if (!par) return msg("Cole o código do seu par (ele começa com ND2; códigos antigos ND1 também funcionam).");
-  if (par.sala !== meu.sala) return msg("Esse código é de outra sala (" + par.sala + "). A sua é " + meu.sala + ".");
+  const [meu, par] = await Promise.all([lerCodigo($("meu-codigo").value), lerCodigo($("codigo-par").value)]);
+  if (!meu) { msg("Termine o quiz em dois celulares para gerar o seu código."); return false; }
+  if (!par) { msg("Cole o código do seu par (ele começa com ND3; códigos antigos ND1 e ND2 também funcionam)."); return false; }
+  if (par.sala !== meu.sala) { msg("Esse código é de outra sala (" + par.sala + "). A sua é " + meu.sala + "."); return false; }
   const l = montarLista(meu.sala.slice(-1) === "R" ? "rapida" : "completa", meu.sala);
-  if (par.respostas.length !== l.length || meu.respostas.length !== l.length) return msg("O código do seu par está incompleto. Peça para ele copiar de novo.");
+  if (par.respostas.length !== l.length || meu.respostas.length !== l.length) { msg("O código do seu par está incompleto. Peça para ele copiar de novo."); return false; }
   const quem = meu.sala.slice(-2, -1) === "Q";
   let combinaram = 0, total = 0; const divergentes = [], pulos = [], escritas = [];
   l.forEach((p, i) => {
@@ -628,9 +696,60 @@ function comparar() {
     s.style.whiteSpace = "pre-line"; it.append(s); saida.append(it);
   });
   if (pulos.length) msg(pulos.length + " pergunta(s) foram puladas por alguém. Vale conversar sobre elas, se quiserem.");
+  guardarCodigoDoPar(meu.sala, $("codigo-par").value);
+  return true;
 }
 
 /* ---------- 8) Salvar, continuar e apagar ---------- */
+function respostasFinaisValidas(itens, l) {
+  return Array.isArray(itens) && itens.length === l.length && itens.every((x, i) => x && x.q === l[i].q && x.r === l[i].r && typeof x.v === "string" && typeof x.c === "string" && /^[epxc_12an]$/.test(x.c) && (typeof x.t === "undefined" || (typeof x.t === "string" && x.t.length <= 700)));
+}
+function guardarResultado() {
+  try {
+    limparCodigoGuardado();                         // evita comparar o novo resultado com um código próprio de uma sala antiga
+    localStorage.setItem(CHAVE_RESULTADO, JSON.stringify({ v: 1, modo, versao, sala, respostas, pontos, codigoPar: "" }));
+  } catch (e) { avisar("Não consegui guardar este resultado neste navegador."); }
+}
+function lerResultadoGuardado() {
+  try {
+    const s = JSON.parse(localStorage.getItem(CHAVE_RESULTADO) || "null");
+    if (!s || s.v !== 1 || !["conversa", "quem", "conhece"].includes(s.modo) || !["completa", "rapida"].includes(s.versao) || typeof s.sala !== "string") return null;
+    if (s.sala && !RE_SALA.test(s.sala)) return null;
+    const l = montarLista(s.versao, s.sala || "");
+    if (!respostasFinaisValidas(s.respostas, l)) return null;
+    if (typeof s.codigoPar !== "undefined" && (typeof s.codigoPar !== "string" || s.codigoPar.length > 100000)) return null;
+    return { modo: s.modo, versao: s.versao, sala: s.sala, respostas: s.respostas.map((x) => ({ ...x, t: x.t || "" })), pontos: Number.isInteger(s.pontos) ? s.pontos : s.respostas.filter((x) => x.c === "a").length, codigoPar: s.codigoPar || "" };
+  } catch (e) { return null; }
+}
+function limparResultadoGuardado() { try { localStorage.removeItem(CHAVE_RESULTADO); } catch (e) {} }
+function guardarCodigoDoPar(codigoSala, codigoPar) {
+  const s = lerResultadoGuardado();
+  if (!s || s.sala !== codigoSala) return;
+  try { localStorage.setItem(CHAVE_RESULTADO, JSON.stringify({ ...s, v: 1, codigoPar })); } catch (e) {}
+}
+function preencherTodasRespostas() {
+  const box = $("todas-respostas"); box.replaceChildren();
+  respostas.forEach((x, i) => {
+    const p = document.createElement("p"), b = document.createElement("b");
+    b.textContent = (i + 1) + ". " + x.q; p.append(b, document.createElement("br"), document.createTextNode(x.t || x.v)); box.append(p);
+  });
+}
+async function abrirResultadoGuardado() {
+  const s = lerResultadoGuardado();
+  if (!s) { atualizarHome(); avisar("Não encontrei um resultado guardado neste aparelho."); return; }
+  modo = s.modo; versao = s.versao; sala = s.sala; respostas = s.respostas; pontos = s.pontos;
+  lista = montarLista(versao, sala); idx = lista.length;
+  ir("resultado");
+  $("resultado-titulo").textContent = "Último resultado";
+  $("resultado-texto").textContent = "Vocês podem rever as respostas e a comparação quando quiserem.";
+  $("placar").textContent = modo === "conhece" ? pontos + " / " + lista.length : "";
+  preencherTodasRespostas();
+  $("bloco-comparar").hidden = !sala; $("comparacao").replaceChildren(); $("codigo-par").value = s.codigoPar;
+  if (sala) {
+    const codigo = await prepararCodigoComparacao();
+    if (codigo && s.codigoPar) await comparar();
+  }
+}
 function lerSalvo() {                                // devolve a partida salva (validada) ou null
   try {
     const s = JSON.parse(localStorage.getItem(CHAVE) || "null");
@@ -659,10 +778,12 @@ function continuar() {
 function atualizarHome() {
   const s = lerSalvo(); $("salvo").hidden = !s;
   if (s) $("salvo-texto").textContent = "Vocês pararam na pergunta " + (s.idx + 1) + (s.sala ? " (sala " + s.sala + ")." : ".");
+  const r = lerResultadoGuardado(); $("resultado-salvo").hidden = !r;
+  if (r) $("resultado-salvo-texto").textContent = "Resultado " + (r.sala ? "da sala " + r.sala : "da partida no mesmo celular") + " guardado neste aparelho.";
 }
 function apagarTudo() {
   if (!confirm("Apagar a partida salva e as respostas deste aparelho?")) return;
-  limparSalvo(); respostas = []; pontos = 0; idx = 0; lista = []; sala = "";
+  limparSalvo(); limparCodigoGuardado(); limparResultadoGuardado(); respostas = []; pontos = 0; idx = 0; lista = []; sala = "";
   $("apelido1").value = ""; $("apelido2").value = "";
   avisar("Apagado. Nada ficou salvo neste aparelho."); ir("home");
 }
@@ -685,6 +806,8 @@ $("btn-apagar").addEventListener("click", apagarTudo);
 $("btn-apagar2").addEventListener("click", apagarTudo);
 $("btn-continuar").addEventListener("click", continuar);
 $("btn-descartar").addEventListener("click", () => { limparSalvo(); atualizarHome(); avisar("Partida salva descartada."); });
+$("btn-ver-resultado").addEventListener("click", () => { abrirResultadoGuardado(); });
+$("btn-apagar-resultado").addEventListener("click", () => { limparResultadoGuardado(); limparCodigoGuardado(); atualizarHome(); avisar("Resultado apagado deste aparelho."); });
 $("btn-comecar").addEventListener("click", () => { zerarSala(); comecarPartida(); });
 $("btn-voltar-p").addEventListener("click", voltarPergunta);
 $("btn-pular").addEventListener("click", pular);
@@ -695,7 +818,7 @@ $("btn-entrar-sala").addEventListener("click", entrarSala);
 $("btn-comecar-duo").addEventListener("click", () => { modo = duoModo; versao = duoVersao; comecarPartida(); });
 $("btn-enviar-sala").addEventListener("click", compartilharConvite);
 $("btn-copiar").addEventListener("click", () => copiarCampo("meu-codigo"));
-$("btn-enviar-codigo").addEventListener("click", () => compartilhar("Meu código do Nós: " + $("meu-codigo").value + " · cole no jogo para comparar:"));
+$("btn-enviar-codigo").addEventListener("click", enviarComparacao);
 $("btn-comparar").addEventListener("click", comparar);
 $("btn-instalar").addEventListener("click", instalar);
 document.querySelectorAll("[data-ir]").forEach((b) => b.addEventListener("click", () => ir(b.dataset.ir)));
@@ -715,7 +838,34 @@ function abrirConvite() {                            // convite: abre já na sal
   $("entrar-codigo").focus({ preventScroll: true });
   avisar("Convite recebido. O código já está preenchido; toque em “Entrar na sala”.");
 }
+async function abrirComparacaoRecebida() {           // link de comparação: abre exatamente na área que mostra as duas respostas
+  const codigo = new URLSearchParams((location.hash || "").replace(/^#/, "")).get("comparar") || "";
+  if (!codigo) return;
+  ir("resultado");
+  $("resultado-titulo").textContent = "Comparar respostas";
+  $("resultado-texto").textContent = "O código do seu par já foi recebido. Veja a comparação abaixo.";
+  $("placar").textContent = ""; $("bloco-comparar").hidden = false;
+  let meuCodigo = lerCodigoGuardado();
+  if (!meuCodigo) {                                  // se o app foi fechado antes de o código terminar de ser preparado, recria a partir do resultado local
+    const resultado = lerResultadoGuardado();
+    if (resultado && resultado.sala) {
+      modo = resultado.modo; versao = resultado.versao; sala = resultado.sala; respostas = resultado.respostas; pontos = resultado.pontos;
+      lista = montarLista(versao, sala); idx = lista.length;
+      meuCodigo = await codigoComparacao(); guardarCodigoComparacao(meuCodigo);
+    }
+  }
+  $("meu-codigo").value = meuCodigo; $("codigo-par").value = codigo;
+  const box = $("todas-respostas"); box.replaceChildren();
+  const ajuda = document.createElement("p"); ajuda.textContent = "A comparação usa o último quiz terminado neste aparelho."; box.append(ajuda);
+  if (!$("meu-codigo").value) {
+    const saida = $("comparacao"); saida.replaceChildren();
+    const aviso = document.createElement("div"); aviso.className = "item"; aviso.textContent = "Termine o seu quiz nesta mesma sala neste aparelho. Depois, abra este link de novo para comparar."; saida.append(aviso);
+    return;
+  }
+  await comparar();
+}
 abrirConvite();
+abrirComparacaoRecebida();
 </script>
 </body>
 </html>
