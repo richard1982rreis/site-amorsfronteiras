@@ -13,7 +13,7 @@
    Quem tinha instalado o app antigo (Amor de Hoje) usava este mesmo endereço (app/sw.js):
    ao atualizar, as cópias antigas são apagadas aqui embaixo (activate) e o Hélios assume.
    ===================================================================== */
-const VERSAO = "helios-v7";
+const VERSAO = "helios-v8";
 const ESCOPO = new URL("./", self.location).pathname;          // ex.: "/app/"
 const CASCA = [
   "./index.html",

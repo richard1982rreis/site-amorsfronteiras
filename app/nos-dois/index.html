@@ -122,6 +122,9 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
 
 /* 7) Resultado, comparação, avisos */
 .resultado{text-align:center}
+.convite-helios{text-align:center}
+.convite-helios h3{font-size:26px}
+.convite-helios .lead{margin-bottom:6px}
 .medalhao{width:150px;height:150px;border-radius:50%;margin:0 auto 6px;background:url(icons/nos-dois-icon-512.png) center/cover no-repeat;box-shadow:0 6px 20px rgba(60,50,120,.24)}
 .placar{margin:6px 0 4px;font-family:var(--display);font-size:42px;line-height:1}
 .respostas p{margin:0 0 10px;font-size:15px;line-height:1.5;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
@@ -240,6 +243,14 @@ textarea{min-height:132px;resize:vertical;line-height:1.45}
     <button class="btn primary" id="btn-de-novo" type="button">Jogar de novo</button>
     <button class="btn secondary" data-ir="home" type="button">Voltar para o início</button>
     <button class="btn ghost" id="btn-apagar2" type="button">Apagar tudo</button>
+  </div>
+
+  <!-- Convite ao Hélios: aparece na tela final, logo abaixo do resultado -->
+  <div class="card convite-helios">
+    <h3>Gostou dessa conversa?</h3>
+    <p class="lead">Experimente o Hélios.</p>
+    <p class="muted">Frases prontas para dizer o que você sente. Grátis e sem cadastro.</p>
+    <a class="btn primary" href="../helios/index.html">Abrir o Hélios <span aria-hidden="true">♥</span></a>
   </div>
 
   <!-- só aparece quando jogaram em dois celulares -->

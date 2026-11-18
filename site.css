@@ -350,3 +350,139 @@ h1,h2,h3{text-wrap:balance;font-weight:400}
   .loja-stage{border-radius:26px}
   .loja-info .btn{width:100%}
 }
+
+
+/* =====================================================================
+   CHECKLIST GRATUITO
+   Tudo o que é novo para o checklist fica aqui, reaproveitando as cores e as fontes do site:
+   (1) botão do menu  (2) faixa de CTA das páginas  (3) formulário  (4) página de obrigado
+   ===================================================================== */
+
+/* ---------- (1) botão "Checklist Gratuito" dentro do menu ---------- */
+/* No computador: botão com contorno vermelho, ao lado dos links. O "App grátis" continua sendo o botão cheio. */
+.nav-links a.nav-cta{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:1.5px solid var(--accent);border-radius:12px;background:rgba(255,255,255,.45);color:var(--accent);font-weight:600;white-space:nowrap;transition:background .25s ease,color .25s ease,transform .25s ease}
+.nav-links a.nav-cta:hover,.nav-links a.nav-cta[aria-current="page"]{background:var(--accent);color:#fff;transform:translateY(-2px)}
+.nav-links a.nav-cta:after{display:none!important}   /* sem o sublinhado das outras páginas */
+/* No celular (menu aberto): vira um botão largo no fim da lista */
+@media (max-width:1160px){
+  .js .nav-links a.nav-cta{margin-top:14px;min-height:50px;justify-content:center;padding:0 18px;border:1.5px solid var(--accent)}
+}
+
+/* ---------- (2) faixa de CTA que aparece no fim de todas as páginas ---------- */
+.cta-wrap{padding-block:20px 90px}
+.cta-check{position:relative;overflow:hidden;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:clamp(24px,5vw,60px);padding:44px clamp(24px,5vw,64px);border-radius:32px;background:linear-gradient(135deg,rgba(255,255,255,.74),rgba(253,228,234,.88));border:1px solid rgba(200,36,63,.22);box-shadow:0 30px 90px rgba(16,40,79,.10)}
+.cta-check-cover{width:160px;height:auto;border-radius:10px;box-shadow:0 22px 50px rgba(16,40,79,.28);transform:rotate(-3deg)}
+.cta-check h2{margin-bottom:12px;font-family:var(--display);font-weight:400;font-size:clamp(2rem,4vw,3.2rem);line-height:1;letter-spacing:-.03em}
+.cta-check h2 em{color:var(--accent)}
+.cta-check p{max-width:580px;color:var(--muted)}
+.cta-check .btn-row{margin-top:20px}
+.cta-check .fine{margin-top:12px}
+/* versão compacta (páginas de Privacidade, Termos e +18): sem capa, numa linha só */
+.cta-check.compact{grid-template-columns:1fr auto;padding:28px clamp(22px,4vw,40px);border-radius:24px}
+.cta-check.compact h2{margin-bottom:6px;font-size:clamp(1.6rem,3vw,2.2rem)}
+.cta-check.compact .btn-row{margin:0}
+.cta-wrap.legal{padding-block:0 70px}
+@media (max-width:900px){
+  .cta-check{grid-template-columns:1fr;padding:34px 24px}
+  .cta-check-cover{width:130px}
+  .cta-check.compact{grid-template-columns:1fr}
+}
+@media (max-width:600px){.cta-check .btn{width:100%}.cta-wrap{padding-bottom:70px}}
+
+/* ---------- (3) página checklist.html ---------- */
+.check-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,6vw,70px);align-items:center}
+.check-hero h1{margin:6px 0 20px;font-family:var(--display);font-size:clamp(2.6rem,6vw,4.9rem);line-height:.98;letter-spacing:-.035em}
+.check-hero h1 em{color:var(--accent)}
+.check-hero .lead{max-width:560px;margin-bottom:26px}
+.check-cover{position:relative;display:flex;justify-content:center}
+.check-cover img{width:min(330px,100%);aspect-ratio:500/708;object-fit:cover;border-radius:14px;background:#fff;box-shadow:0 34px 80px rgba(16,40,79,.28),0 0 0 1px rgba(16,40,79,.08);transform:rotate(2deg)}
+/* z-index:3 coloca a etiqueta POR CIMA da capa (a capa gira com transform, o que a fazia cobrir a etiqueta) */
+.check-cover .badge{position:absolute;z-index:3;top:8px;right:max(0px,calc(50% - 180px));background:var(--accent);color:#fff;min-height:32px;padding:0 14px;border:2px solid #fff;box-shadow:0 10px 24px rgba(200,36,63,.35);transform:rotate(4deg)}
+.cards.four{grid-template-columns:repeat(4,1fr)}
+.cards.four .card{padding:26px}
+.cards.four .card h3{font-size:27px}
+
+.form-card{max-width:560px;padding:30px;border-radius:26px;background:rgba(255,255,255,.84);border:1px solid var(--line);box-shadow:0 24px 70px rgba(16,40,79,.10)}
+.form-card h2{margin-bottom:6px;font:400 1.9rem/1.1 var(--display)}
+.form-card .sub{margin-bottom:22px;color:var(--muted);font-size:15px;line-height:1.55}
+.field{display:grid;gap:7px;margin-bottom:16px}
+.field label{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.field input{width:100%;min-height:52px;padding:0 16px;border:1px solid rgba(16,40,79,.24);border-radius:14px;background:#fff;color:var(--ink);font:inherit;font-size:16px;transition:border-color .2s ease,box-shadow .2s ease}
+.field input::placeholder{color:#7f8fab}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(200,36,63,.14)}
+.consent{display:flex;gap:12px;align-items:flex-start;margin:4px 0 20px;color:#33496b;font-size:13.5px;line-height:1.55}
+.consent input{flex:none;width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
+.consent a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.form-card .btn{width:100%}
+.btn[disabled]{opacity:.7;cursor:progress;transform:none!important}
+.form-status{margin-top:14px;font-size:14px;line-height:1.55}
+.form-status:empty{display:none}
+.form-status.err{padding:10px 14px;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:#fff6f8;color:#8f1c32}
+.form-status.err a{text-decoration:underline;text-underline-offset:3px}
+.form-note{margin-top:14px;color:var(--muted);font-size:12.5px;line-height:1.55;text-align:center}
+.form-note a{text-decoration:underline;text-underline-offset:3px}
+/* campo-isca contra robôs: invisível para pessoas, preenchido só por robôs */
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ja-pediu{margin-top:16px;color:var(--muted);font-size:14px}
+.ja-pediu a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.faq-wrap{max-width:780px;margin-inline:auto}
+
+/* ---------- (4) página obrigado.html ---------- */
+.thanks{max-width:780px;margin-inline:auto;padding:52px clamp(22px,5vw,60px);border-radius:32px;background:rgba(255,255,255,.72);border:1px solid var(--line);box-shadow:0 30px 90px rgba(16,40,79,.10);text-align:center}
+.thanks-mark{width:68px;height:68px;margin:0 auto 20px;display:grid;place-items:center;border-radius:50%;background:rgba(200,36,63,.10);color:var(--accent);font-size:30px}
+.thanks h1{margin-bottom:14px;font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1;letter-spacing:-.035em}
+.thanks h1 em{color:var(--accent)}
+.thanks .lead{max-width:520px;margin-inline:auto}
+.thanks .btn{margin-top:26px;min-height:58px;padding:0 34px;font-size:17px}
+.thanks .fine{max-width:480px;margin-inline:auto}
+
+@media (max-width:1100px){.cards.four{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+  .check-hero{grid-template-columns:1fr}
+  .check-cover{order:2}
+  .check-cover img{width:min(260px,70%)}
+  .check-cover .badge{right:max(0px,calc(50% - 150px))}
+}
+@media (max-width:600px){
+  .cards.four{grid-template-columns:1fr}
+  .form-card{padding:24px 20px}
+  .thanks{padding:40px 22px}
+  .thanks .btn{width:100%}
+}
+
+/* espaço no topo das páginas checklist.html e obrigado.html (o cabeçalho do site é fixo) */
+.check-top{padding:calc(var(--header-h) + var(--safe-top) + 56px) 0 50px}
+@media (max-width:600px){.check-top{padding-top:calc(var(--header-h) + var(--safe-top) + 32px)}}
+
+
+/* ---------- lista "Mais de 10 ações simples para..." (checklist.html, antes do formulário) ---------- */
+.ganhos{max-width:560px;margin:0 0 26px;padding:20px 24px;border-radius:20px;background:rgba(255,255,255,.62);border:1px solid var(--line)}
+.ganhos-titulo{margin:0 0 12px;font:400 1.5rem/1.2 var(--display);color:var(--ink)}
+.ganhos-lista{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ganhos-lista li{display:flex;align-items:center;gap:12px;font-weight:500;color:var(--ink)}
+/* o "check" é desenhado em CSS (círculo vermelho + ✓) para ficar igual em todos os aparelhos */
+.ganhos-lista li:before{content:"✓";flex:none;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;font:700 13px var(--mono)}
+
+/* ---------- jornada em 3 passos (obrigado.html) ---------- */
+.journey{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{display:flex;flex-direction:column}
+.step .card{flex:1;display:flex;flex-direction:column}
+.step .card-cta{margin-top:auto;padding-top:18px}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.step-mark{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--accent);background:#fff;color:var(--accent);font:600 18px var(--mono)}
+.step.done .step-mark{background:var(--accent);color:#fff;box-shadow:0 10px 24px rgba(200,36,63,.3)}
+/* a linha vai até o início da coluna seguinte (margem negativa = largura do espaço entre as colunas) */
+.step-line{flex:1;height:2px;margin-right:-24px;background:rgba(16,40,79,.16)}
+.step.done .step-line{background:var(--accent)}
+.step:last-child .step-line{display:none}
+.journey-more{margin:34px 0 0;text-align:center;color:var(--muted)}
+.journey-more a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:900px){
+  .journey{grid-template-columns:1fr;gap:28px}
+  .step-line{display:none}          /* no celular os passos ficam empilhados, só com a bolinha numerada */
+}
+
+/* com a lista de ações antes do formulário a coluna da esquerda ficou mais alta: a capa agora fica no topo, perto do título */
+.check-hero{align-items:start}
+.check-cover{padding-top:28px}
+@media (max-width:900px){.check-cover{padding-top:0}}

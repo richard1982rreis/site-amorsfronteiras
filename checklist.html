@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e3effc"><title>Checklist Gratuito para Casais | Amor Sem Fronteiras</title><meta name="description" content="Receba gratuitamente o checklist criado para ajudar casais a fortalecer comunicação, presença e conexão emocional.">
+<link rel="canonical" href="https://amorsfronteiras.com.br/checklist.html"><meta property="og:type" content="website"><meta property="og:locale" content="pt_BR"><meta property="og:site_name" content="Amor Sem Fronteiras">
+<meta property="og:title" content="Checklist Gratuito para Casais | Amor Sem Fronteiras"><meta property="og:description" content="Receba gratuitamente o checklist criado para ajudar casais a fortalecer comunicação, presença e conexão emocional."><meta property="og:url" content="https://amorsfronteiras.com.br/checklist.html">
+<meta property="og:image" content="https://amorsfronteiras.com.br/icons/og-image-1200.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://amorsfronteiras.com.br/icons/og-image-1200.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="site.css"><script>document.documentElement.classList.add("js")</script></head>
+<body><a class="skip" href="#conteudo">Pular para o conteúdo</a><header class="site-header"><div class="container nav"><a href="index.html" class="brand" aria-label="Amor Sem Fronteiras, home"><img src="icons/icon-192.png" alt="" class="brand-logo" width="42" height="42"><span class="brand-name">Amor Sem Fronteiras</span></a><nav class="nav-links" id="menu" aria-label="Principal"><a href="index.html">Home</a><a href="historia.html">Nossa história</a><a href="produtos.html">Loja</a><a href="ebook.html">E-book</a><a href="sobre.html">Sobre</a><a href="privacidade.html">Privacidade</a><a href="termos.html">Termos</a><a href="checklist.html" class="nav-cta" aria-current="page">Checklist Gratuito</a></nav><a href="app/helios/index.html" class="btn btn-primary btn-small">App grátis</a><button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menu</button></div></header><main id="conteudo">
+
+<!-- ============ TOPO: título, formulário e capa ============ -->
+<section class="check-top">
+  <div class="container check-hero">
+
+    <div class="reveal">
+      <div class="eyebrow">Material gratuito</div>
+      <h1>Checklist para casais que querem <em>fortalecer o relacionamento.</em></h1>
+      <p class="lead">Descubra ações simples e práticas que ajudam casais a melhorar a comunicação, fortalecer a confiança e criar mais conexão emocional.</p>
+
+      <!-- O QUE A PESSOA GANHA: fica antes do formulário para responder "o que eu recebo?" antes de pedir o e-mail -->
+      <div class="ganhos">
+        <p class="ganhos-titulo">Mais de 10 ações simples para:</p>
+        <ul class="ganhos-lista">
+          <li>melhorar a comunicação</li>
+          <li>fortalecer a confiança</li>
+          <li>criar mais conexão</li>
+          <li>demonstrar amor no dia a dia</li>
+        </ul>
+      </div>
+
+      <!-- Aparece só se a pessoa tentou abrir obrigado.html sem preencher o formulário (checklist.js liga este aviso) -->
+      <div id="aviso-gate" class="aviso" role="status" hidden><p>Para baixar o checklist, preencha o seu nome e e-mail abaixo.</p></div>
+
+      <!-- FORMULÁRIO: o envio é feito por checklist.js (fetch). Sem JavaScript o botão não envia nada, de propósito. -->
+      <form class="form-card" id="form-checklist" action="#" method="post">
+        <h2>Comece a fortalecer o seu relacionamento hoje</h2>
+        <p class="sub">Preencha o seu nome e e-mail e o download abre na hora, nesta mesma tela.</p>
+
+        <div class="field">
+          <label for="f-nome">Seu nome</label>
+          <input id="f-nome" name="nome" type="text" autocomplete="name" maxlength="80" required placeholder="Como podemos te chamar?">
+        </div>
+
+        <div class="field">
+          <label for="f-email">Seu melhor e-mail</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="120" required placeholder="nome@email.com">
+        </div>
+
+        <!-- campo-isca: invisível para pessoas. Se um robô preencher, o envio é descartado -->
+        <div class="hp" aria-hidden="true"><label>Não preencha este campo <input name="site" type="text" tabindex="-1" autocomplete="off"></label></div>
+
+        <!-- consentimento (LGPD): a pessoa precisa marcar para enviar -->
+        <label class="consent">
+          <input type="checkbox" name="consentimento" required>
+          <span>Concordo em receber o checklist e outros materiais do Amor Sem Fronteiras por e-mail e li a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Posso cancelar quando quiser.</span>
+        </label>
+
+        <button class="btn btn-primary" id="form-enviar" type="submit">Receber meu checklist <span aria-hidden="true">→</span></button>
+        <div class="form-status" id="form-status" role="status" aria-live="polite"></div>
+        <p class="form-note">Pedimos só nome e e-mail. Não vendemos os seus dados. <a href="privacidade.html">Saiba mais</a>.</p>
+      </form>
+
+      <!-- atalho para quem já pediu nas últimas 24 h (checklist.js liga este link) -->
+      <p class="ja-pediu" id="ja-pediu" hidden>Já pediu hoje? <a href="obrigado.html">Baixar de novo</a></p>
+    </div>
+
+    <div class="check-cover reveal">
+      <span class="badge">PDF · Grátis</span>
+      <img src="img/capa-checklist-500.webp" alt="Capa do Checklist: Além da Distância, O Poder do Amor" width="500" height="708" fetchpriority="high" decoding="async">
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ O QUE TEM DENTRO ============ -->
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">Dentro do checklist</div>
+      <h2 class="section-title">O que você vai <em>encontrar.</em></h2>
+      <p class="lead">Quatro frentes para cuidar do que mais importa no relacionamento, no ritmo de vocês.</p>
+    </div>
+    <div class="cards four">
+      <article class="card reveal"><div class="card-top"><span class="card-number">01 — COMUNICAÇÃO</span></div><h3>Comunicação</h3><p>Pequenas ações para melhorar conversas e evitar mal-entendidos.</p></article>
+      <article class="card reveal"><div class="card-top"><span class="card-number">02 — CONEXÃO</span></div><h3>Conexão</h3><p>Exercícios simples para manter o relacionamento forte.</p></article>
+      <article class="card reveal"><div class="card-top"><span class="card-number">03 — DISTÂNCIA</span></div><h3>Distância</h3><p>Dicas para casais que estão longe fisicamente.</p></article>
+      <article class="card reveal"><div class="card-top"><span class="card-number">04 — PRESENÇA</span></div><h3>Presença</h3><p>Ideias para demonstrar carinho mesmo nos dias corridos.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMO FUNCIONA ============ -->
+<section class="section" style="padding-top:10px">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">Como funciona</div>
+      <h2 class="section-title">Três passos, <em>sem complicação.</em></h2>
+    </div>
+    <div class="cards">
+      <article class="card reveal"><div class="card-top"><span class="card-number">PASSO 01</span></div><h3>Preencha</h3><p>Informe o seu nome e e-mail e marque a caixa de concordância.</p></article>
+      <article class="card reveal"><div class="card-top"><span class="card-number">PASSO 02</span></div><h3>Baixe</h3><p>A página de download abre na hora, nesta mesma tela. É só tocar no botão.</p></article>
+      <article class="card reveal"><div class="card-top"><span class="card-number">PASSO 03</span></div><h3>Use a dois</h3><p>Guarde no celular ou imprima e vá marcando junto com a pessoa que você ama.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PERGUNTAS FREQUENTES (transparência sobre os dados) ============ -->
+<section class="section" style="padding-top:10px">
+  <div class="container">
+    <article class="doc reveal">
+      <h2>Perguntas rápidas</h2>
+      <dl class="faq">
+        <dt>É gratuito mesmo?</dt><dd>Sim. Não pedimos cartão nem pagamento.</dd>
+        <dt>Que dados vocês pedem?</dt><dd>Apenas nome e e-mail. Não pedimos telefone, endereço, CPF nem dados de pagamento.</dd>
+        <dt>O que fazem com o meu e-mail?</dt><dd>Usamos para liberar o seu checklist e para enviar materiais e novidades do Amor Sem Fronteiras. Não vendemos nem repassamos os seus dados para fins comerciais de terceiros.</dd>
+        <dt>Como faço para cancelar?</dt><dd>Todo e-mail nosso traz a opção de cancelar o recebimento. Se preferir, escreva para <a href="mailto:contato@amorsfronteiras.com.br">contato@amorsfronteiras.com.br</a> e removemos o seu nome e e-mail.</dd>
+        <dt>Em que formato vem?</dt><dd>Em PDF, para abrir no celular, no computador ou imprimir.</dd>
+      </dl>
+      <p class="fine">Detalhes completos na <a href="privacidade.html">Política de Privacidade</a>.</p>
+    </article>
+  </div>
+</section>
+</main><footer class="site-footer"><div class="container"><div class="footer-grid">
+<div><div class="footer-brand"><img src="icons/icon-192.png" alt="" class="footer-logo" width="30" height="30" loading="lazy"><span>Amor Sem Fronteiras</span></div><p class="footer-tag">Tecnologia para aproximar quem ama.</p></div>
+<div class="footer-col"><b>Site</b><a href="index.html">Home</a><a href="historia.html">Nossa história</a><a href="sobre.html">Sobre</a></div>
+<div class="footer-col"><b>Produtos</b><a href="produtos.html">Loja</a><a href="app/helios/index.html">App gratuito</a><a href="ebook.html">E-book</a><a href="app/nos-dois/index.html">Nós (jogo grátis)</a><a href="checklist.html">Checklist gratuito</a></div>
+<div class="footer-col"><b>Legal</b><a href="privacidade.html">Política de Privacidade</a><a href="termos.html">Termos de Uso</a><a href="mais-de-18.html">+18</a></div>
+</div><div class="footer-end"><span>© <span data-year>2026</span> Amor Sem Fronteiras</span><span>Feito com amor para quem ama.</span></div></div></footer>
+<script src="site-config.js"></script><script src="site.js"></script><script src="checklist.js"></script></body></html>

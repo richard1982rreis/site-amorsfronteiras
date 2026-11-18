@@ -1,0 +1,6 @@
+COLOQUE AQUI O PDF DO CHECKLIST
+
+Nome do arquivo esperado: checklist-amor-sem-fronteiras.pdf
+(se usar outro nome, troque CHECKLIST_PDF em site-config.js)
+
+Sem este arquivo, o botão "Baixar o checklist" da página obrigado.html dá erro 404.
